@@ -22,10 +22,10 @@ public class ElasticSearchConfig {
 
 
 
-    @Value("${spring.elasticsearch.rest.scheme}")
+    @Value("${common.elasticsearch.rest.scheme}")
     private String scheme;
 
-    @Value("${spring.elasticsearch.rest.ip-address}")
+    @Value("${common.elasticsearch.rest.ip-address}")
     private List<String> ipAddressList;
 
     @Bean
