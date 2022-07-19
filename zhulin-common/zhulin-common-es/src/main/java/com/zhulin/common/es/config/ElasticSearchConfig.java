@@ -18,7 +18,9 @@ import java.util.List;
  * @description: 这里进行 RestHighLevelClient 配置，用于操作 ElasticSearch。
  **/
 @Configuration
-public class EsRestHighLevelClientConfig {
+public class ElasticSearchConfig {
+
+
 
     @Value("${spring.elasticsearch.rest.scheme}")
     private String scheme;

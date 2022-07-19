@@ -1,0 +1,1 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.zhulin.common.es.config.ElasticSearchConfig
