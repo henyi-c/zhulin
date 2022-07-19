@@ -106,4 +106,21 @@ public interface BaseSearchService<T> {
      * @return T 类型的集合
      */
     <t> List<t> searchByQuery(String index, SearchSourceBuilder sourceBuilder, Class<t> resultType) throws IOException;
+
+
+    /**
+     * 根据查询将数据更新，唯一主键
+     */
+     void updateById(Map<String, Object> data, String indexName, String id);
+
+
+
+
+
+
+
+
+
+
+
 }

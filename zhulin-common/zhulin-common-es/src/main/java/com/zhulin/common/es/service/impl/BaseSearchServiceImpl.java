@@ -3,6 +3,7 @@ package com.zhulin.common.es.service.impl;
 import cn.hutool.json.JSONUtil;
 import com.zhulin.common.es.entity.ElasticSearchDocument;
 import com.zhulin.common.es.service.BaseSearchService;
+import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
@@ -15,6 +16,8 @@ import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.support.master.AcknowledgedResponse;
+import org.elasticsearch.action.update.UpdateRequest;
+import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.indices.GetIndexRequest;
@@ -36,14 +39,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static com.zhulin.common.es.constant.ElasticSearchConst.ELASTIC_SEARCH_TYPE;
+
+@Slf4j
 @Service
 public class BaseSearchServiceImpl<T> implements BaseSearchService<T> {
 
 
-    @Value("${spring.elasticsearch.default-shards}")
+    @Value("${spring.elasticsearch.default-shards:1}")
     private String ELASTIC_SEARCH_DEFAULT_SHARDS;
 
-    @Value("${spring.elasticsearch.default-replicas}")
+    @Value("${spring.elasticsearch.default-replicas:0}")
     private List<String> ELASTIC_SEARCH_DEFAULT_REPLICAS;
 
 
@@ -170,4 +176,24 @@ public class BaseSearchServiceImpl<T> implements BaseSearchService<T> {
         return results;
 
     }
+
+    @Override
+    public void updateById(Map<String, Object> data, String indexName, String id) {
+        log.info("es开始更新数据:{}", JSONUtil.toJsonStr(data));
+        try {
+            UpdateRequest request = new UpdateRequest(indexName, ELASTIC_SEARCH_TYPE, id).doc(data);
+            UpdateResponse response = restHighLevelClient.update(request, RequestOptions.DEFAULT);
+            log.info("更新状态：{}", response.getResult());
+        } catch (IOException e) {
+            log.error("更新写入异常:{}", e.getMessage(), e);
+        }
+        if (log.isDebugEnabled()) {
+            log.info("es更新数据完成");
+        }
+    }
+
+
+
+
+
 }
