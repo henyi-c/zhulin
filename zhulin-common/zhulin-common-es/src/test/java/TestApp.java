@@ -1,5 +1,5 @@
 import cn.hutool.json.JSONUtil;
-import com.zhulin.common.es.entity.ElasticSearchDocument;
+import com.zhulin.common.es.entity.ES_Document;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.util.EntityUtils;
@@ -159,15 +159,24 @@ public class TestApp {
         // 1、创建ES客户端对象
         RestHighLevelClient client = new RestHighLevelClient(RestClient.builder(new HttpHost("localhost", 9200, "http")));
         // 2、创建请求对象
-        ElasticSearchDocument elasticSearchDocument = new ElasticSearchDocument();
-        elasticSearchDocument.setId("1");
-        elasticSearchDocument.setData("{}");
+        ES_Document ES_Document = new ES_Document();
+        ES_Document.setIndex("200");
+        ES_Document.setData("{\n" +
+                "    \"name\": \"小明\",\n" +
+                "    \"description\": \"一个简洁的在线 JSON 解析器\",\n" +
+                "    \"features\": [\n" +
+                "        {\n" +
+                "            \"name\": \"一键分享\",\n" +
+                "            \"available\": true\n" +
+                "        }\n" +
+                "    ]\n" +
+                "}");
         // 定义请求对象
-        IndexRequest request = new IndexRequest("elasticSearchDocument");
+        IndexRequest request = new IndexRequest("user");
         // 设置文档id
-        request.id(elasticSearchDocument.getId());
+        request.id(ES_Document.getDocumentId());
         // 将json格式字符串放在请求中
-        request.source(JSONUtil.toJsonStr(elasticSearchDocument.getData()), XContentType.JSON);
+        request.source(JSONUtil.toJsonStr(ES_Document.getData()), XContentType.JSON);
         // 3、发送请求到ES
         IndexResponse response = client.index(request, RequestOptions.DEFAULT);
         // 4、处理响应结果
@@ -187,13 +196,13 @@ public class TestApp {
         // 1、创建ES客户端对象
         RestHighLevelClient client = new RestHighLevelClient(RestClient.builder(new HttpHost("localhost", 9200, "http")));
         // 2、定义请求对象
-        ElasticSearchDocument elasticSearchDocument = new ElasticSearchDocument();
-        elasticSearchDocument.setId("1");
-        elasticSearchDocument.setData("{\"name\":\"小明\"}");
+        ES_Document ES_Document = new ES_Document();
+        ES_Document.setIndex("1");
+        ES_Document.setData("{\"name\":\"小红\"}");
         UpdateRequest request = new UpdateRequest();
-        request.index("user").id("1000");
+        request.index("user").id(ES_Document.getDocumentId());
         // 拓展：局部更新也可以这样写：request.doc(XContentType.JSON, "name", "李四", "age", 25);，其中"name"和"age"是User对象中的字段名称，而"小美"和20是对应的字段值
-        request.doc(JSONUtil.toJsonStr(elasticSearchDocument.getData()), XContentType.JSON);
+        request.doc(JSONUtil.toJsonStr(ES_Document.getData()), XContentType.JSON);
         // 3、发送请求到ES
         UpdateResponse response = client.update(request, RequestOptions.DEFAULT);
         // 4、处理响应结果
@@ -214,7 +223,7 @@ public class TestApp {
         RestHighLevelClient client = new RestHighLevelClient(RestClient.builder(new HttpHost("localhost", 9200, "http")));
         // 2、定义请求对象
         GetRequest request = new GetRequest("user");
-        request.id("1000");
+        request.id("1");
         // 3、发送请求到ES
         GetResponse response = client.get(request, RequestOptions.DEFAULT);
         // 4、处理响应结果
@@ -237,7 +246,7 @@ public class TestApp {
         RestHighLevelClient client = new RestHighLevelClient(RestClient.builder(new HttpHost("localhost", 9200, "http")));
         // 2、定义请求对象
         DeleteRequest request = new DeleteRequest("user");
-        request.id("1000");
+        request.id("1");
         // 3、发送请求到ES
         DeleteResponse response = client.delete(request, RequestOptions.DEFAULT);
         // 4、处理响应结果
@@ -258,7 +267,8 @@ public class TestApp {
         RestHighLevelClient client = new RestHighLevelClient(RestClient.builder(new HttpHost("localhost", 9200, "http")));
         // 2、定义请求对象
         DeleteByQueryRequest request = new DeleteByQueryRequest("user");
-        request.setQuery(QueryBuilders.matchAllQuery());
+        //QueryBuilders.termQuery("sex", "男") QueryBuilders.matchAllQuery()
+        request.setQuery(QueryBuilders.termQuery("name", "小明"));
         // 3、发送请求到ES
         BulkByScrollResponse response = client.deleteByQuery(request, RequestOptions.DEFAULT);
         // 4、处理响应结果
@@ -279,23 +289,28 @@ public class TestApp {
         RestHighLevelClient client = new RestHighLevelClient(RestClient.builder(new HttpHost("localhost", 9200, "http")));
         // 2、定义请求对象
         // 准备测试数据
-        List<ElasticSearchDocument> elasticSearchDocumentList = new ArrayList<>(10);
+        List<ES_Document> ES_DocumentList = new ArrayList<>(10);
         for (int i = 0; i < 10; i++) {
-            ElasticSearchDocument elasticSearchDocument = new ElasticSearchDocument();
-            elasticSearchDocument.setId(i + "");
-            elasticSearchDocument.setData("{\"name\":\"小明\"}");
-            elasticSearchDocumentList.add(elasticSearchDocument);
+            ES_Document ES_Document = new ES_Document();
+            ES_Document.setIndex(i + "");
+            ES_Document.setData("{\n" +
+                    "    \"name\": \"小明\",\n" +
+                    "    \"description\": \"一个简洁的在线 JSON 解析器\",\n" +
+                    "    \"age\": 5,\n" +
+                    "    \"sex\": \"男\"\n" +
+                    "}");
+            ES_DocumentList.add(ES_Document);
         }
         BulkRequest bulkRequest = new BulkRequest();
         // 准备批量插入的数据
-        elasticSearchDocumentList.forEach(elasticSearchDocument -> {
+        ES_DocumentList.forEach(ES_Document -> {
             // 设置请求对象
             IndexRequest request = new IndexRequest("user");
             // 文档id
-            request.id(elasticSearchDocument.getId());
+            request.id(ES_Document.getDocumentId());
             // 将json格式字符串放在请求中
             // 下面这种写法也可以写成：request.source(XContentType.JSON, "name", "张三", "age", "男", "age", 22);，其中"name"、"age"、 "age"是User对象中的字段名，而这些字段名称后面的值就是对应的值
-            request.source(JSONUtil.toJsonStr(elasticSearchDocument.getData()), XContentType.JSON);
+            request.source(JSONUtil.toJsonStr(ES_Document.getData()), XContentType.JSON);
             // 将request添加到批量处理请求中
             bulkRequest.add(request);
         });
@@ -328,20 +343,20 @@ public class TestApp {
         RestHighLevelClient client = new RestHighLevelClient(RestClient.builder(new HttpHost("localhost", 9200, "http")));
         // 2、定义请求对象
         // 准备测试数据（只用到了age来生成文档id，但是为了和上面的批量插入应和，所以需要这样做）
-        List<ElasticSearchDocument> elasticSearchDocumentList = new ArrayList<>(10);
+        List<ES_Document> ES_DocumentList = new ArrayList<>(10);
         for (int i = 0; i < 10; i++) {
-            ElasticSearchDocument elasticSearchDocument = new ElasticSearchDocument();
-            elasticSearchDocument.setId(i + "");
-            elasticSearchDocument.setData("{\"name\":\"小明\"}");
-            elasticSearchDocumentList.add(elasticSearchDocument);
+            ES_Document ES_Document = new ES_Document();
+            ES_Document.setIndex(i + "");
+            ES_Document.setData("{\"name\":\"小明\"}");
+            ES_DocumentList.add(ES_Document);
         }
         BulkRequest bulkRequest = new BulkRequest();
         // 准备批量插入的数据
-        elasticSearchDocumentList.forEach(elasticSearchDocument -> {
+        ES_DocumentList.forEach(ES_Document -> {
             // 设置请求对象
             DeleteRequest request = new DeleteRequest("user");
             // 文档id
-            request.id(elasticSearchDocument.getId());
+            request.id(ES_Document.getDocumentId());
             // 将request添加到批量处理请求中
             bulkRequest.add(request);
         });
@@ -408,6 +423,7 @@ public class TestApp {
         SearchSourceBuilder builder = new SearchSourceBuilder();
         // 用来查询sex是男的数据
         builder.query(QueryBuilders.termQuery("sex", "男"));
+        builder.query(QueryBuilders.termQuery("name", "大"));
         request.source(builder);
         // 3、发送请求到ES
         SearchResponse response = client.search(request, RequestOptions.DEFAULT);
@@ -437,6 +453,8 @@ public class TestApp {
         SearchSourceBuilder builder = new SearchSourceBuilder();
         // 分页查询数据，本次测试只查询前5条
         builder.query(QueryBuilders.matchAllQuery());
+        // 根据年龄做降序排序
+        builder.sort("age", SortOrder.DESC);
         int currentPage = 1;
         int pageSize = 5;
         int from = (currentPage - 1) * pageSize;
@@ -596,7 +614,7 @@ public class TestApp {
         SearchSourceBuilder builder = new SearchSourceBuilder();
         // 和分词无关，这就是和mysql中like类似的做法
         // 查询名称中包含“张三”的数据，或者比“张三”多一个字符的数据，这是通过Fuzziness.ONE来控制的，比如“张三1”是可以出现的，但是“张三12”是无法出现的，这是因为他比张三多了两个字符；除了“Fuzziness.ONE”之外，还可以是“Fuzziness.TWO”等
-        builder.query(QueryBuilders.fuzzyQuery("name.keyword", "张三").fuzziness(Fuzziness.ONE));
+        builder.query(QueryBuilders.fuzzyQuery("name.keyword", "小").fuzziness(Fuzziness.ONE));
         request.source(builder);
         // 3、发送请求到ES
         SearchResponse response = client.search(request, RequestOptions.DEFAULT);
@@ -625,7 +643,7 @@ public class TestApp {
         // 指定检索条件
         SearchSourceBuilder builder = new SearchSourceBuilder();
         // 设置查询条件
-        builder.query(QueryBuilders.matchPhraseQuery("name", "张三"));
+        builder.query(QueryBuilders.matchPhraseQuery("name", "小"));
         // 构建高亮查询对象
         HighlightBuilder highlightBuilder = new HighlightBuilder();
         // 前置标签
@@ -694,7 +712,7 @@ public class TestApp {
         // 指定检索条件
         SearchSourceBuilder builder = new SearchSourceBuilder();
         // 按照性别分组，聚合操作要求和分词操作无关，由于sex在默认添加的时候是text类型，因为需要设置为keyword类型
-        AggregationBuilder aggregationBuilder = AggregationBuilders.terms("termsSex").field("sex.keyword");
+        AggregationBuilder aggregationBuilder = AggregationBuilders.terms("termsSex").field("sex");
         builder.aggregation(aggregationBuilder);
         request.source(builder);
         // 3、发送请求到ES
