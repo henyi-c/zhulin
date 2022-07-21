@@ -58,28 +58,6 @@ public class CommonSearchServiceImpl implements CommonSearchService {
     private RestHighLevelClient client;
 
 
-    public SearchSourceBuilder searchSourceBuilderInstant(QueryBuilder query) {
-        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
-        sourceBuilder.query(query);
-        return sourceBuilder;
-    }
-
-
-    public SearchSourceBuilder searchSourceBuilderInstant(QueryBuilder[] queryArray) {
-        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
-        for (QueryBuilder query :queryArray){
-            sourceBuilder.query(query);
-        }
-        return sourceBuilder;
-    }
-
-    public SearchSourceBuilder searchSourceBuilderInstant(Map<String,Object> queryArray) {
-        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
-        return sourceBuilder;
-    }
-
-
-
     @Override
     public boolean addIndex(String index, String aliasesJsonStr, String mappingJsonStr, String settingJsonStr) throws Exception {
         // 定义索引名称
@@ -295,15 +273,12 @@ public class CommonSearchServiceImpl implements CommonSearchService {
 
 
     @Override
-    public List<ES_Document<?>> queryData(String index, QueryBuilder query, Class<?> clz) throws Exception {
+    public List<ES_Document<?>> queryDataList(String index, SearchSourceBuilder builder, Class<?> clz) throws Exception {
         List<ES_Document<?>> ES_DocumentList = new ArrayList<>();
         // 定义请求对象
         SearchRequest request = new SearchRequest();
         request.indices(index);
         // 指定检索条件
-        SearchSourceBuilder builder = new SearchSourceBuilder();
-        // 用来查询索引中全部的数据
-        builder.query(query);
         request.source(builder);
         // 发送请求到ES
         SearchResponse response = client.search(request, RequestOptions.DEFAULT);
@@ -315,15 +290,12 @@ public class CommonSearchServiceImpl implements CommonSearchService {
     }
 
     @Override
-    public List<Map<String, Object>> queryData(String index, QueryBuilder query) throws Exception {
+    public List<Map<String, Object>> queryDataList(String index, SearchSourceBuilder builder) throws Exception {
         List<Map<String, Object>> mapList = new ArrayList<>();
         // 定义请求对象
         SearchRequest request = new SearchRequest();
         request.indices(index);
         // 指定检索条件
-        SearchSourceBuilder builder = new SearchSourceBuilder();
-        // 用来查询索引中全部的数据
-        builder.query(query);
         request.source(builder);
         // 发送请求到ES
         SearchResponse response = client.search(request, RequestOptions.DEFAULT);
@@ -332,10 +304,29 @@ public class CommonSearchServiceImpl implements CommonSearchService {
             Map<String, Object> data = Convert.convert(new TypeReference<Map<String, Object>>() {
             }, JSONUtil.toBean(hit.getSourceAsString(), Map.class));
             data.put("index", hit.getIndex());
-            data.put("id", hit.getId());
+            data.put("documentId", hit.getId());
             mapList.add(data);
         }
         return mapList;
     }
+
+
+    @Override
+    public List<ES_Document<?>> queryDataPage(int currentPage, int pageSize, String index, SearchSourceBuilder builder, Class<?> clz) throws Exception {
+        int from = (currentPage - 1) * pageSize;
+        builder.from(from);
+        builder.size(pageSize);
+        return queryDataList(index, builder, clz);
+    }
+
+
+    @Override
+    public List<Map<String, Object>> queryDataPage(int currentPage, int pageSize, String index, SearchSourceBuilder builder) throws Exception {
+        int from = (currentPage - 1) * pageSize;
+        builder.from(from);
+        builder.size(pageSize);
+        return queryDataList(index, builder);
+    }
+
 
 }

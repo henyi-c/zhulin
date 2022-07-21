@@ -4,6 +4,7 @@ package com.zhulin.common.es.service;
 import com.zhulin.common.es.entity.ES_Document;
 import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 
 import java.io.IOException;
 import java.util.List;
@@ -101,22 +102,47 @@ public interface CommonSearchService {
     /**
      * 根据条件查询数据
      *
-     * @param index        索引
-     * @param queryBuilder 查询构造器 QueryBuilders.matchAllQuery()
-     * @param clz          ES_Document 对象的data类型
-     * @return ES_Document列表对象
+     * @param index   索引
+     * @param builder 查询构造器
+     * @return Map列表对象
      */
-    List<ES_Document<?>> queryData(String index, QueryBuilder queryBuilder, Class<?> clz) throws Exception;
+    List<Map<String, Object>> queryDataList(String index, SearchSourceBuilder builder) throws Exception;
 
 
     /**
      * 根据条件查询数据
      *
-     * @param index        索引
-     * @param queryBuilder 查询构造器 QueryBuilders.matchAllQuery()
+     * @param index   索引
+     * @param builder 查询构造器
+     * @param clz     ES_Document 对象的data类型
+     * @return ES_Document列表对象
+     */
+    List<ES_Document<?>> queryDataList(String index, SearchSourceBuilder builder, Class<?> clz) throws Exception;
+
+
+    /**
+     * 根据条件查询数据
+     *
+     * @param currentPage 当前页
+     * @param pageSize    一页几条
+     * @param index       索引
+     * @param builder     查询构造器
      * @return Map列表对象
      */
-    List<Map<String,Object>> queryData(String index, QueryBuilder queryBuilder) throws Exception;
+    List<Map<String, Object>> queryDataPage(int currentPage, int pageSize, String index, SearchSourceBuilder builder) throws Exception;
+
+
+    /**
+     * 根据条件查询数据
+     *
+     * @param currentPage 当前页
+     * @param pageSize    一页几条
+     * @param index       索引
+     * @param builder     查询构造器
+     * @param clz         ES_Document 对象的data类型
+     * @return ES_Document列表对象
+     */
+    List<ES_Document<?>> queryDataPage(int currentPage, int pageSize, String index, SearchSourceBuilder builder, Class<?> clz) throws Exception;
 
 
     /**
