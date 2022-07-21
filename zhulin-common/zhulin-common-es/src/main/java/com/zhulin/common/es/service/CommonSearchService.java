@@ -66,7 +66,7 @@ public interface CommonSearchService {
      * @param ES_Document 封装数据对象
      * @return CREATED/UPDATED
      */
-    String insertDataToIndex(ES_Document<?> ES_Document) throws Exception;
+    String insertData(ES_Document<?> ES_Document) throws Exception;
 
 
     /**
@@ -75,7 +75,7 @@ public interface CommonSearchService {
      * @param ES_Document 封装数据对象
      * @return NOOP:无需修改/UPDATED:已更新
      */
-    String updateDataToIndex(ES_Document<?> ES_Document) throws Exception;
+    String updateData(ES_Document<?> ES_Document) throws Exception;
 
 
     /**
@@ -171,7 +171,7 @@ public interface CommonSearchService {
      * @param ES_DocumentList 封装数据类集合
      * @return Map集合：batchInsertFlag:批量插入是否失败/successDocumentId:插入成功的文档id/failDocumentId:插入失败的文档id
      */
-    Map<String, Object> batchInsertDataToIndex(List<ES_Document<?>> ES_DocumentList) throws Exception;
+    Map<String, Object> batchInsertData(List<ES_Document<?>> ES_DocumentList) throws Exception;
 
 
     /**
@@ -180,7 +180,7 @@ public interface CommonSearchService {
      * @param ES_DocumentList 封装数据类集合
      * @return Map集合：batchDeleteFlag:批量插入是否失败/successDocumentId:插入成功的文档id/failDocumentId:插入失败的文档id
      */
-    Map<String, Object> batchDeleteDataFromIndex(List<ES_Document<?>> ES_DocumentList) throws Exception;
+    Map<String, Object> batchDeleteData(List<ES_Document<?>> ES_DocumentList) throws Exception;
 
 
 }

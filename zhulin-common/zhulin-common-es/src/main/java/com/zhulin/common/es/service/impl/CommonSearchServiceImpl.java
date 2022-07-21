@@ -51,8 +51,8 @@ public class CommonSearchServiceImpl implements CommonSearchService {
     @Value("${spring.elasticsearch.default-shards:1}")
     private String ELASTIC_SEARCH_DEFAULT_SHARDS;
 
-    @Value("${spring.elasticsearch.default-replicas:0}")
-    private List<String> ELASTIC_SEARCH_DEFAULT_REPLICAS;
+    @Value("${spring.elasticsearch.default-replicas:1}")
+    private String ELASTIC_SEARCH_DEFAULT_REPLICAS;
 
     @Resource
     private RestHighLevelClient client;
@@ -101,7 +101,7 @@ public class CommonSearchServiceImpl implements CommonSearchService {
     @Override
     public Map<String, Object> getIndexInfo(String index) throws Exception {
         // 定义索引名称
-        GetIndexRequest request = new GetIndexRequest("user");
+        GetIndexRequest request = new GetIndexRequest(index);
         // 发送请求到ES
         GetIndexResponse response = client.indices().get(request, RequestOptions.DEFAULT);
         // 处理响应结果
@@ -123,7 +123,7 @@ public class CommonSearchServiceImpl implements CommonSearchService {
     }
 
     @Override
-    public String insertDataToIndex(ES_Document<?> ES_Document) throws Exception {
+    public String insertData(ES_Document<?> ES_Document) throws Exception {
         // 定义请求对象
         IndexRequest request = new IndexRequest(ES_Document.getIndex());
         // 设置文档id
@@ -138,7 +138,7 @@ public class CommonSearchServiceImpl implements CommonSearchService {
 
 
     @Override
-    public String updateDataToIndex(ES_Document<?> ES_Document) throws Exception {
+    public String updateData(ES_Document<?> ES_Document) throws Exception {
         // 定义请求对象
         UpdateRequest request = new UpdateRequest();
         request.index(ES_Document.getIndex()).id(ES_Document.getDocumentId());
@@ -192,7 +192,7 @@ public class CommonSearchServiceImpl implements CommonSearchService {
     }
 
     @Override
-    public Map<String, Object> batchInsertDataToIndex(List<ES_Document<?>> ES_DocumentList) throws Exception {
+    public Map<String, Object> batchInsertData(List<ES_Document<?>> ES_DocumentList) throws Exception {
         BulkRequest bulkRequest = new BulkRequest();
         // 准备批量插入的数据
         ES_DocumentList.forEach(ES_Document -> {
@@ -234,7 +234,7 @@ public class CommonSearchServiceImpl implements CommonSearchService {
     }
 
     @Override
-    public Map<String, Object> batchDeleteDataFromIndex(List<ES_Document<?>> ES_DocumentList) throws Exception {
+    public Map<String, Object> batchDeleteData(List<ES_Document<?>> ES_DocumentList) throws Exception {
         BulkRequest bulkRequest = new BulkRequest();
         // 准备批量删除的数据
         ES_DocumentList.forEach(ES_Document -> {

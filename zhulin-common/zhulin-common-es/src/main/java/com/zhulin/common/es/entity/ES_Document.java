@@ -30,6 +30,10 @@ public class ES_Document<T> {
     public ES_Document() {
     }
 
+    public ES_Document(String index, T sourceAsString) {
+        this.index = index;
+        this.data = sourceAsString;
+    }
     public ES_Document(String index, String documentId, T sourceAsString) {
         this.index = index;
         this.documentId = documentId;
