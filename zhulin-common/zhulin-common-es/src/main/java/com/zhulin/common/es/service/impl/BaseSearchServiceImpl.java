@@ -5,7 +5,7 @@ import cn.hutool.core.convert.Convert;
 import cn.hutool.core.lang.TypeReference;
 import cn.hutool.json.JSONUtil;
 import com.zhulin.common.es.entity.ES_Document;
-import com.zhulin.common.es.service.CommonSearchService;
+import com.zhulin.common.es.service.BaseSearchService;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.bulk.BulkItemResponse;
@@ -46,7 +46,7 @@ import java.util.Map;
 
 @Slf4j
 @Service
-public class CommonSearchServiceImpl implements CommonSearchService {
+public class BaseSearchServiceImpl implements BaseSearchService {
 
     @Value("${spring.elasticsearch.default-shards:1}")
     private String ELASTIC_SEARCH_DEFAULT_SHARDS;
@@ -127,7 +127,7 @@ public class CommonSearchServiceImpl implements CommonSearchService {
         // 定义请求对象
         IndexRequest request = new IndexRequest(ES_Document.getIndex());
         // 设置文档id
-        request.id(ES_Document.getDocumentId());
+        request.id(ES_Document.getId());
         // 将json格式字符串放在请求中
         request.source(JSONUtil.toJsonStr(ES_Document.getData()), XContentType.JSON);
         // 发送请求到ES
@@ -141,7 +141,7 @@ public class CommonSearchServiceImpl implements CommonSearchService {
     public String updateData(ES_Document<?> ES_Document) throws Exception {
         // 定义请求对象
         UpdateRequest request = new UpdateRequest();
-        request.index(ES_Document.getIndex()).id(ES_Document.getDocumentId());
+        request.index(ES_Document.getIndex()).id(ES_Document.getId());
         // 也可以这样写：request.doc(XContentType.JSON, "name", "李四", "age", 25);
         request.doc(JSONUtil.toJsonStr(ES_Document.getData()), XContentType.JSON);
         // 发送请求到ES
@@ -152,13 +152,13 @@ public class CommonSearchServiceImpl implements CommonSearchService {
 
 
     @Override
-    public ES_Document<?> getDataById(String index, String documentId) throws Exception {
-        return getDataById(index, documentId, String.class);
+    public ES_Document<?> queryDataById(String index, String documentId) throws Exception {
+        return queryDataById(index, documentId, String.class);
     }
 
 
     @Override
-    public ES_Document<?> getDataById(String index, String documentId, Class<?> clz) throws Exception {
+    public ES_Document<?> queryDataById(String index, String documentId, Class<?> clz) throws Exception {
         // 定义请求对象
         GetRequest request = new GetRequest(index);
         request.id(documentId);
@@ -199,7 +199,7 @@ public class CommonSearchServiceImpl implements CommonSearchService {
             // 设置请求对象
             IndexRequest request = new IndexRequest(ES_Document.getIndex());
             // 文档id
-            request.id(ES_Document.getDocumentId());
+            request.id(ES_Document.getId());
             // 将json格式字符串放在请求中
             // 下面这种写法也可以写成：request.source(XContentType.JSON, "name", "张三", "age", "男", "age", 22);，其中"name"、"age"、 "age"是User对象中的字段名，而这些字段名称后面的值就是对应的值
             request.source(JSONUtil.toJsonStr(ES_Document.getData()), XContentType.JSON);
@@ -228,8 +228,8 @@ public class CommonSearchServiceImpl implements CommonSearchService {
                 log.info("插入失败的文档id：{}", itemResponse.getId());
             }
         }
-        resMap.put("successDocumentId", successDocumentId);
-        resMap.put("failDocumentId", failDocumentId);
+        resMap.put("successId", successDocumentId);
+        resMap.put("failId", failDocumentId);
         return resMap;
     }
 
@@ -240,7 +240,7 @@ public class CommonSearchServiceImpl implements CommonSearchService {
         ES_DocumentList.forEach(ES_Document -> {
             DeleteRequest request = new DeleteRequest(ES_Document.getIndex());
             // 文档id
-            request.id(ES_Document.getDocumentId());
+            request.id(ES_Document.getId());
             // 将request添加到批量处理请求中
             bulkRequest.add(request);
         });
@@ -266,8 +266,8 @@ public class CommonSearchServiceImpl implements CommonSearchService {
                 log.info("删除失败的文档id：{}", itemResponse.getId());
             }
         }
-        resMap.put("successDocumentId", successDocumentId);
-        resMap.put("failDocumentId", failDocumentId);
+        resMap.put("successId", successDocumentId);
+        resMap.put("failId", failDocumentId);
         return resMap;
     }
 
@@ -304,7 +304,7 @@ public class CommonSearchServiceImpl implements CommonSearchService {
             Map<String, Object> data = Convert.convert(new TypeReference<Map<String, Object>>() {
             }, JSONUtil.toBean(hit.getSourceAsString(), Map.class));
             data.put("index", hit.getIndex());
-            data.put("documentId", hit.getId());
+            data.put("id", hit.getId());
             mapList.add(data);
         }
         return mapList;

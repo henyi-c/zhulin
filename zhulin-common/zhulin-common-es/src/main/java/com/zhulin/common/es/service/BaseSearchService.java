@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-public interface CommonSearchService {
+public interface BaseSearchService {
 
 
     /**
@@ -85,7 +85,7 @@ public interface CommonSearchService {
      * @param documentId 数据id
      * @return 返回通用封装的 ES_Document 对象  data默认为json字符串
      */
-    ES_Document<?> getDataById(String index, String documentId) throws Exception;
+    ES_Document<?> queryDataById(String index, String documentId) throws Exception;
 
 
     /**
@@ -96,7 +96,7 @@ public interface CommonSearchService {
      * @param clz        ES_Document 对象的data类型
      * @return 返回通用封装的 ES_Document 对象
      */
-    ES_Document<?> getDataById(String index, String documentId, Class<?> clz) throws Exception;
+    ES_Document<?> queryDataById(String index, String documentId, Class<?> clz) throws Exception;
 
 
     /**

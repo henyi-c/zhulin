@@ -20,7 +20,7 @@ public class ES_Document<T> {
     /*
      * 数据id
      **/
-    private String documentId;
+    private String id;
 
     /*
      * 数据
@@ -34,9 +34,9 @@ public class ES_Document<T> {
         this.index = index;
         this.data = sourceAsString;
     }
-    public ES_Document(String index, String documentId, T sourceAsString) {
+    public ES_Document(String index, String id, T sourceAsString) {
         this.index = index;
-        this.documentId = documentId;
+        this.id = id;
         this.data = sourceAsString;
     }
 }

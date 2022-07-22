@@ -12,5 +12,13 @@ public class ES_Const {
      */
     public static final String ELASTIC_SEARCH_DEFAULT_TYPE="doc" ;
 
+    /**
+     * 关键字
+     */
+    public static final String ELASTIC_SEARCH_KEY_WORD=".keyword" ;
 
+    /**
+     * 符号*
+     */
+    public static final String ELASTIC_SEARCH_SYMBOL_="*" ;
 }

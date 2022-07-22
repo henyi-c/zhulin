@@ -1,17 +1,15 @@
 package com.zhulin.common.es;
 
 import com.zhulin.common.es.entity.ES_Document;
-import com.zhulin.common.es.service.CommonSearchService;
-import com.zhulin.common.es.service.impl.CommonSearchServiceImpl;
+import com.zhulin.common.es.service.BaseSearchService;
+import com.zhulin.common.es.utils.ES_HelpUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
 
 /**
  * 封装测试
@@ -21,7 +19,7 @@ import javax.annotation.Resource;
 public class MyTest {
 
     @Autowired
-    CommonSearchService commonSearchService;
+    BaseSearchService baseSearchService;
 
 
     /**
@@ -34,20 +32,21 @@ public class MyTest {
 
 
     void addIndex() throws Exception {
-        log.info("{}",commonSearchService.addIndex("chunxiao"));
+        log.info("{}", baseSearchService.addIndex("chunxiao"));
     }
 
     void getIndexInfo() throws Exception {
-        log.info("{}",commonSearchService.getIndexInfo("chunxiao"));
+        log.info("{}", baseSearchService.getIndexInfo("chunxiao"));
     }
 
     void deleteIndex() throws Exception {
-        log.info("{}",commonSearchService.deleteIndex("chunxiao"));
+        log.info("{}", baseSearchService.deleteIndex("chunxiao"));
     }
 
     void insertDataToIndex() throws Exception {
-        log.info("{}",commonSearchService.insertData(new ES_Document<String>("chunxiao","{\n" +
-                "    \"name\": \"JsonT\",\n" +
+        log.info("{}", baseSearchService.insertData(new ES_Document<>("chunxiao", "{\n" +
+                "    \"name\": \"json kkay\",\n" +
+                "    \"age\": 18,\n" +
                 "    \"description\": \"一个简洁的在线 JSON 解析器\",\n" +
                 "    \"features\": [\n" +
                 "        {\n" +
@@ -59,7 +58,19 @@ public class MyTest {
     }
 
 
-    void queryDataList() throws Exception {
-        log.info("{}",commonSearchService.queryDataPage(1,5,"chunxiao", new SearchSourceBuilder().query(QueryBuilders.matchAllQuery())));
+    void queryAll() throws Exception {
+        SearchSourceBuilder query = new SearchSourceBuilder().query(QueryBuilders.matchAllQuery());
+        log.info("{}", baseSearchService.queryDataPage(1, 5, "chunxiao", query));
     }
+
+    void queryDataList() throws Exception {
+        SearchSourceBuilder query = new SearchSourceBuilder().query(ES_HelpUtil.like("description", "S"));
+        log.info("{}", baseSearchService.queryDataPage(1, 5, "chunxiao", query));
+    }
+
+    void queryDataById() throws Exception {
+        log.info("{}", baseSearchService.queryDataById("chunxiao", "XUzTH4IB-Hu_4rgLoYDj"));
+    }
+
+
 }
